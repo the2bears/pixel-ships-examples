@@ -2,7 +2,7 @@
   (:require [lanterna.screen :as console])
   (:gen-class))
 
-(def scr (console/get-screen))
+(def scr (console/get-screen :text))
 
 (defn -main
   [& args]
