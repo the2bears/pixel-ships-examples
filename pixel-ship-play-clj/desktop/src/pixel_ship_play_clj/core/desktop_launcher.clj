@@ -9,4 +9,3 @@
   (LwjglApplication. pixel-ship-play-clj-game "pixel-ship-play-clj" 800 600)
   (Keyboard/enableRepeatEvents true))
 
-;(-main)

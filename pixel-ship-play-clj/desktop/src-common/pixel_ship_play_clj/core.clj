@@ -2,35 +2,45 @@
   (:require [play-clj.core :refer :all]
             [play-clj.ui :refer :all]
             [pixel-ships.core :as psc :refer :all]
-            [pixel-ships.bollinger :as bollinger :refer :all]))
+            [pixel-ships.bollinger :as bollinger :refer :all]
+            [clojure.pprint :refer :all]))
 
-(declare create-pixel-ship-play-clj custom-shape play-clj-color hsv-to-rgb)
+(declare create-pixel-ship-play-clj custom-shape play-clj-color hsv-to-rgb change-ship)
 
 (defn create-entity [screen]
   (let [pixel-ship (bundle nil)]
     pixel-ship))
 
-(defn create-pixel-ship-play-clj [ship-map]
-  (let [tags (keys (:pixels ship-map))
-        pixels (:pixels ship-map)
-        hull ((comp :hull :pixels) ship-map)
-        shape-builder (fn[s] (reduce (fn[acc n] (conj acc (custom-shape n))) [] s))]
-    (reduce (fn[acc tag](concat (shape-builder (tag pixels)) acc)) [] tags)))
+(defn create-pixel-ship-play-clj
+  ([]
+   (create-pixel-ship-play-clj (psc/color-pixel-ship (psc/create-pixel-ship (assoc bollinger/model :seed (rand-int Integer/MAX_VALUE))))))
+  ([ship-map]
+   (let [tags (keys (:pixels ship-map))
+         pixels (:pixels ship-map)
+         hull ((comp :hull :pixels) ship-map)
+         shape-builder (fn[s] (reduce (fn[acc n] (conj acc (custom-shape n))) [] s))]
+     (reduce (fn[acc tag](concat (shape-builder (tag pixels)) acc)) [] tags))))
 
 (defscreen main-screen
   :on-show
   (fn [screen entities]
     (let [screen (update! screen :renderer (stage))
-          pixel-ship (create-entity screen)
-          ship-map (psc/color-pixel-ship (psc/create-pixel-ship (assoc bollinger/model :seed (rand-int Integer/MAX_VALUE))))]
-      [(assoc pixel-ship :entities (create-pixel-ship-play-clj ship-map)
-         :x 200 :y 200 :angle 180)]
+          pixel-ship (create-entity screen)]
+      [(assoc pixel-ship :entities (create-pixel-ship-play-clj)
+         :id :pixel-ship :ship? true :x 200 :y 200 :angle 180)]
       ))
 
   :on-render
   (fn [screen entities]
     (clear! 0.9 0.9 0.9 1)
-    (render! screen entities)))
+    (render! screen entities))
+
+  :on-key-down
+  (fn [screen entities]
+    (cond
+      (= (:key screen) (key-code :space))
+      (change-ship screen entities)
+      )))
 
 
 (defgame pixel-ship-play-clj-game
@@ -38,7 +48,14 @@
   (fn [this]
     (set-screen! this main-screen)))
 
-(-> main-screen :entities deref)
+(defn change-ship [screen entities]
+  (->> entities
+       (map (fn [entity]
+              (cond (:ship? entity)
+                    (assoc entity :entities (create-pixel-ship-play-clj))
+              )))
+
+       ))
 
 (def p-per-c 20)
 
@@ -76,3 +93,8 @@
 
     ))))
 
+(-> main-screen :entities deref)
+
+;(use 'pixel-ship-play-clj.core.desktop-launcher)
+
+;(-main)
