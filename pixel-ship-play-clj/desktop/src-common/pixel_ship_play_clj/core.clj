@@ -13,9 +13,10 @@
 
 (defn create-pixel-ship-play-clj
   ([]
-   (create-pixel-ship-play-clj (psc/color-pixel-ship (psc/create-pixel-ship (assoc bollinger/model :seed (rand-int Integer/MAX_VALUE))))))
-  ([ship-map]
-   (let [tags (keys (:pixels ship-map))
+   (create-pixel-ship-play-clj (rand-int Integer/MAX_VALUE)))
+  ([seed]
+   (let [ship-map (psc/color-pixel-ship (psc/create-pixel-ship (assoc bollinger/model :seed seed)))
+         tags (keys (:pixels ship-map))
          pixels (:pixels ship-map)
          hull ((comp :hull :pixels) ship-map)
          shape-builder (fn[s] (reduce (fn[acc n] (conj acc (custom-shape n))) [] s))]
@@ -26,7 +27,7 @@
   (fn [screen entities]
     (let [screen (update! screen :renderer (stage))
           pixel-ship (create-entity screen)]
-      [(assoc pixel-ship :entities (create-pixel-ship-play-clj)
+      [(assoc pixel-ship :entities (create-pixel-ship-play-clj Integer/MAX_VALUE)
          :id :pixel-ship :ship? true :x 200 :y 200 :angle 180)]
       ))
 

@@ -12,10 +12,7 @@
   ; Set color mode to HSB (HSV) instead of default RGB.
   (q/color-mode :hsb 1.0)
   ; create ship and put it into state
-  {:pixel-ship (create-pixel-ship-quil)})
-
-(defn update-state [state]
-  state)
+  {:pixel-ship (create-pixel-ship-quil Integer/MAX_VALUE)})
 
 (defn draw-state [state]
   ; Clear the sketch by filling it with light-grey color.
@@ -44,7 +41,6 @@
     :title "An example of a pixel-ship in Quil"
     :size [800 600]
     :setup setup
-    ;:update update-state
     :draw draw-state
     :key-typed key-press
     :features [:keep-on-top]
@@ -52,8 +48,11 @@
 
 ;(-main)
 
-(defn create-pixel-ship-quil []
-  (psc/color-pixel-ship (psc/create-pixel-ship (assoc bollinger/model :seed (rand-int Integer/MAX_VALUE)))))
+(defn create-pixel-ship-quil
+  ([]
+   (create-pixel-ship-quil (rand-int Integer/MAX_VALUE)))
+  ([seed]
+   (psc/color-pixel-ship (psc/create-pixel-ship (assoc bollinger/model :seed seed)))))
 
 (def p-per-c 20)
 
