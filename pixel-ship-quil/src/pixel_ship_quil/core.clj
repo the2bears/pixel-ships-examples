@@ -25,7 +25,6 @@
         cockpit-pixels ((comp :cockpit :pixels) (:pixel-ship state))]
     (q/with-translation [200
                          (- (q/height) 200)]
-
       (doseq [pixel hull-pixels]
         (draw-rect pixel))
       (doseq [pixel solid-pixels]
@@ -33,6 +32,11 @@
       (doseq [pixel cockpit-pixels]
         (draw-rect pixel))
     )))
+
+(defn key-press [state event]
+  (if (= (q/raw-key ) \space )
+    (assoc state :pixel-ship (create-pixel-ship-quil))
+    state))
 
 (defn -main
   []
@@ -42,13 +46,14 @@
     :setup setup
     ;:update update-state
     :draw draw-state
+    :key-typed key-press
     :features [:keep-on-top]
     :middleware [m/fun-mode] ))
 
 ;(-main)
 
 (defn create-pixel-ship-quil []
-  (psc/color-pixel-ship (psc/create-pixel-ship (assoc bollinger/model :seed Integer/MAX_VALUE))));(rand-int Integer/MAX_VALUE)))))
+  (psc/color-pixel-ship (psc/create-pixel-ship (assoc bollinger/model :seed (rand-int Integer/MAX_VALUE)))))
 
 (def p-per-c 20)
 
