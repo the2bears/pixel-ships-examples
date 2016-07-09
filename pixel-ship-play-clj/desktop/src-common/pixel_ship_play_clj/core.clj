@@ -18,7 +18,6 @@
    (let [ship-map (psc/color-pixel-ship (psc/create-pixel-ship (assoc bollinger/model :seed seed)))
          tags (keys (:pixels ship-map))
          pixels (:pixels ship-map)
-         hull ((comp :hull :pixels) ship-map)
          shape-builder (fn[s] (reduce (fn[acc n] (conj acc (custom-shape n))) [] s))]
      (reduce (fn[acc tag](concat (shape-builder (tag pixels)) acc)) [] tags))))
 
