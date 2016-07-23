@@ -1,11 +1,13 @@
 (ns pixel-ship-play-clj.core
   (:require [play-clj.core :refer :all]
             [play-clj.ui :refer :all]
+            [play-clj.g2d :refer [texture]]
             [pixel-ships.core :as psc :refer :all]
             [pixel-ships.bollinger :as bollinger :refer :all]
-            [clojure.pprint :refer :all]))
+            [clojure.pprint :refer :all])
+  (:import [com.badlogic.gdx.graphics Pixmap Texture TextureData Pixmap$Format]))
 
-(declare create-pixel-ship-play-clj custom-shape play-clj-color hsv-to-rgb change-ship)
+(declare create-pixel-ship-play-clj custom-shape play-clj-color hsv-to-rgb change-ship draw-rect-pixelmap)
 
 (defn create-entity [screen]
   (let [pixel-ship (bundle nil)]
@@ -21,13 +23,41 @@
          shape-builder (fn[s] (reduce (fn[acc n] (conj acc (custom-shape n))) [] s))]
      (reduce (fn[acc tag](concat (shape-builder (tag pixels)) acc)) [] tags))))
 
+(defn create-pixel-map-list
+  ([]
+   (create-pixel-map-list (rand-int Integer/MAX_VALUE)))
+  ([seed]
+   (let [ship-map (psc/color-pixel-ship (psc/create-pixel-ship (assoc bollinger/model :seed seed)))
+         tags (keys (:pixels ship-map))
+         pixels (:pixels ship-map)
+         shape-builder (fn[s] (reduce (fn[acc n] (conj acc n)) [] s))]
+     (reduce (fn[acc tag](concat (shape-builder (tag pixels)) acc)) [] tags))))
+
+(defn create-pixel-ship-texture
+  ([]
+   (create-pixel-ship-texture (rand-int Integer/MAX_VALUE)))
+  ([seed]
+   (let [pixel-map-list (create-pixel-map-list seed)
+         pix-map (pixmap* 16 16 Pixmap$Format/RGBA8888)]
+     (doseq [pixel pixel-map-list] (draw-rect-pixelmap pix-map pixel))
+     (texture pix-map))))
+
+(defn draw-rect-pixelmap [pix-map {:keys [x y color]}]
+  (let [c (play-clj-color color)]
+    (doto pix-map
+      (pixmap! :set-color c)
+      (pixmap! :fill-rectangle x y 1 1))))
+
 (defscreen main-screen
   :on-show
   (fn [screen entities]
     (let [screen (update! screen :renderer (stage))
-          pixel-ship (create-entity screen)]
+          pixel-ship (create-entity screen)
+          pixel-ship-texture (create-pixel-ship-texture Integer/MAX_VALUE)]
       [(assoc pixel-ship :entities (create-pixel-ship-play-clj Integer/MAX_VALUE)
-         :id :pixel-ship :ship? true :x 200 :y 200 :angle 180)]
+         :id :pixel-ship :ship? true :x 200 :y 200 :angle 180)
+       (assoc pixel-ship-texture :x 400 :y 400 :width 64 :height 64
+         :id :pixel-ship-texture :ship-texture? true)]
       ))
 
   :on-render
@@ -49,13 +79,17 @@
     (set-screen! this main-screen)))
 
 (defn change-ship [screen entities]
-  (->> entities
-       (map (fn [entity]
-              (cond (:ship? entity)
-                    (assoc entity :entities (create-pixel-ship-play-clj))
-              )))
+  (let [seed (rand-int Integer/MAX_VALUE)]
+    (->> entities
+         (map (fn [entity]
+                (cond (:ship? entity)
+                      (assoc entity :entities (create-pixel-ship-play-clj seed))
+                      (:ship-texture? entity)
+                      (assoc (create-pixel-ship-texture seed) :x 400 :y 400 :width 64 :height 64
+                        :id :pixel-ship-texture :ship-texture? true)
+                )))
 
-       ))
+         )))
 
 (def p-per-c 20)
 
