@@ -1,10 +1,9 @@
 (ns pixel-ship-play-clj.core
-  (:require [play-clj.core :refer [bundle clear! color defgame defscreen key-code
-                                   pixmap* pixmap! render! set-screen! shape stage update!]]
+  (:require [play-clj.core :refer [bundle clear! color defgame defscreen key-code pixmap*
+                                   pixmap! pixmap-format render! set-screen! shape stage update!]]
             [play-clj.g2d :refer [texture]]
             [pixel-ships.core :as psc :refer [create-pixel-ship color-pixel-ship]]
-            [pixel-ships.bollinger :as bollinger :refer [model]])
-  (:import [com.badlogic.gdx.graphics Pixmap Texture TextureData Pixmap$Format]))
+            [pixel-ships.bollinger :as bollinger :refer [model]]))
 
 (declare create-pixel-ship-play-clj custom-shape play-clj-color hsv-to-rgb change-ship draw-rect-pixelmap)
 
@@ -37,7 +36,7 @@
    (create-pixel-ship-texture (rand-int Integer/MAX_VALUE)))
   ([seed]
    (let [pixel-map-list (create-pixel-map-list seed)
-         pix-map (pixmap* 16 16 Pixmap$Format/RGBA8888)]
+         pix-map (pixmap* 16 16 (pixmap-format :r-g-b-a8888))]
      (doseq [pixel pixel-map-list] (draw-rect-pixelmap pix-map pixel))
      (texture pix-map))))
 
