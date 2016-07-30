@@ -1,10 +1,9 @@
 (ns pixel-ship-play-clj.core
-  (:require [play-clj.core :refer :all]
-            [play-clj.ui :refer :all]
+  (:require [play-clj.core :refer [bundle clear! color defgame defscreen key-code
+                                   pixmap* pixmap! render! set-screen! shape stage update!]]
             [play-clj.g2d :refer [texture]]
-            [pixel-ships.core :as psc :refer :all]
-            [pixel-ships.bollinger :as bollinger :refer :all]
-            [clojure.pprint :refer :all])
+            [pixel-ships.core :as psc :refer [create-pixel-ship color-pixel-ship]]
+            [pixel-ships.bollinger :as bollinger :refer [model]])
   (:import [com.badlogic.gdx.graphics Pixmap Texture TextureData Pixmap$Format]))
 
 (declare create-pixel-ship-play-clj custom-shape play-clj-color hsv-to-rgb change-ship draw-rect-pixelmap)
